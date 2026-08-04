@@ -4,11 +4,12 @@ import com.studentmanagement.backend.entity.AppUser;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface UserRepository extends JpaRepository<AppUser, Long> {
+public interface UserRepository
+        extends JpaRepository<AppUser, Long> {
 
-    Optional<AppUser> findByUsername(String username);
+    Optional<AppUser> findByEmailIgnoreCase(String email);
 
-    boolean existsByUsername(String username);
+    boolean existsByEmailIgnoreCase(String email);
 
-    boolean existsByEmail(String email);
+    boolean existsByUsernameIgnoreCase(String username);
 }
