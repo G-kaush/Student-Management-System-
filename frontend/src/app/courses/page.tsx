@@ -52,7 +52,11 @@ export default function CoursesPage() {
   }, []);
 
   useEffect(() => {
-    void loadCourses();
+    const timeout = window.setTimeout(() => {
+      void loadCourses();
+    }, 0);
+
+    return () => window.clearTimeout(timeout);
   }, [loadCourses]);
 
   function resetForm() {
@@ -178,6 +182,8 @@ export default function CoursesPage() {
 
             <input
               required
+              pattern="[A-Za-z]+([ '&.-][A-Za-z]+)*"
+              title="Use words only, no numbers"
               value={form.name}
               onChange={(event) =>
                 setForm({
@@ -283,7 +289,7 @@ export default function CoursesPage() {
                     </td>
 
                     <td className="px-5 py-4 text-slate-600">
-                      {course.description || "—"}
+                      {course.description || "-"}
                     </td>
 
                     <td className="px-5 py-4">

@@ -1,5 +1,9 @@
 "use client";
 
+import {
+  login,
+  saveAuthSession,
+} from "@/lib/api";
 import { useRouter } from "next/navigation";
 import type { FormEvent } from "react";
 import { useState } from "react";
@@ -9,13 +13,31 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(
+    event: FormEvent<HTMLFormElement>,
+  ) {
     event.preventDefault();
 
-    // Temporary Day 3 navigation.
-    // Replace this with the authentication API on Day 4.
-    router.push("/dashboard");
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await login(email, password);
+
+      saveAuthSession(response);
+      router.replace("/dashboard");
+    } catch (requestError) {
+      setError(
+        requestError instanceof Error
+          ? requestError.message
+          : "Unable to sign in",
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -35,6 +57,12 @@ export default function LoginPage() {
           onSubmit={handleSubmit}
           className="space-y-5"
         >
+          {error && (
+            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              {error}
+            </div>
+          )}
+
           <div>
             <label
               htmlFor="email"
@@ -79,16 +107,13 @@ export default function LoginPage() {
 
           <button
             type="submit"
+            disabled={loading}
             className="w-full rounded-lg bg-blue-600 px-4 py-2.5 font-medium text-white hover:bg-blue-700"
           >
-            Continue to Dashboard
+            {loading ? "Signing in..." : "Sign in"}
           </button>
         </form>
 
-        <p className="mt-5 text-center text-xs text-slate-500">
-          Day 3 UI preview — authentication will be connected
-          on Day 4.
-        </p>
       </section>
     </main>
   );

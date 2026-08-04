@@ -1,8 +1,17 @@
 "use client";
 
+import {
+  clearAuthSession,
+  getCurrentUser,
+  hasAuthSession,
+} from "@/lib/api";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import {
+  usePathname,
+  useRouter,
+} from "next/navigation";
 import type { ReactNode } from "react";
+import { useEffect } from "react";
 
 interface AppShellProps {
   children: ReactNode;
@@ -21,12 +30,34 @@ const navigation = [
     href: "/courses",
     label: "Courses",
   },
+  {
+    href: "/users",
+    label: "Users",
+    adminOnly: true,
+  },
 ];
 
 export default function AppShell({
   children,
 }: AppShellProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const currentUser = getCurrentUser();
+  const visibleNavigation = navigation.filter(
+    (item) =>
+      !item.adminOnly || currentUser?.role === "ADMIN",
+  );
+
+  useEffect(() => {
+    if (!hasAuthSession()) {
+      router.replace("/login");
+    }
+  }, [router]);
+
+  function handleLogout() {
+    clearAuthSession();
+    router.replace("/login");
+  }
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900">
@@ -39,7 +70,7 @@ export default function AppShell({
         </div>
 
         <nav className="flex gap-2 overflow-x-auto px-4 pb-3">
-          {navigation.map((item) => {
+          {visibleNavigation.map((item) => {
             const active = pathname === item.href;
 
             return (
@@ -71,7 +102,7 @@ export default function AppShell({
           </p>
 
           <nav className="mt-8 flex flex-col gap-2">
-            {navigation.map((item) => {
+            {visibleNavigation.map((item) => {
               const active = pathname === item.href;
 
               return (
@@ -90,12 +121,13 @@ export default function AppShell({
             })}
           </nav>
 
-          <Link
-            href="/login"
-            className="mt-10 block rounded-lg border border-slate-300 px-4 py-2 text-center text-sm font-medium text-slate-700 hover:bg-slate-50"
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="mt-10 w-full rounded-lg border border-slate-300 px-4 py-2 text-center text-sm font-medium text-slate-700 hover:bg-slate-50"
           >
             Log out
-          </Link>
+          </button>
         </aside>
 
         <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">

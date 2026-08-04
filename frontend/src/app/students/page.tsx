@@ -80,7 +80,11 @@ export default function StudentsPage() {
   }, []);
 
   useEffect(() => {
-    void loadData();
+    const timeout = window.setTimeout(() => {
+      void loadData();
+    }, 0);
+
+    return () => window.clearTimeout(timeout);
   }, [loadData]);
 
   function resetForm() {
@@ -247,7 +251,7 @@ export default function StudentsPage() {
                   key={course.id}
                   value={course.id}
                 >
-                  {course.code} — {course.name}
+                  {course.code} - {course.name}
                 </option>
               ))}
             </select>
@@ -260,6 +264,8 @@ export default function StudentsPage() {
 
             <input
               required
+              pattern="[A-Za-z]+([ '-][A-Za-z]+)*"
+              title="Use letters only"
               value={form.firstName}
               onChange={(event) =>
                 setForm({
@@ -278,6 +284,8 @@ export default function StudentsPage() {
 
             <input
               required
+              pattern="[A-Za-z]+([ '-][A-Za-z]+)*"
+              title="Use letters only"
               value={form.lastName}
               onChange={(event) =>
                 setForm({
@@ -314,11 +322,15 @@ export default function StudentsPage() {
             </label>
 
             <input
+              inputMode="numeric"
+              maxLength={10}
+              pattern="[0-9]*"
+              title="Use numbers only, maximum 10 digits"
               value={form.phone}
               onChange={(event) =>
                 setForm({
                   ...form,
-                  phone: event.target.value,
+                  phone: event.target.value.replace(/\D/g, ""),
                 })
               }
               className="w-full rounded-lg border px-3 py-2"
@@ -402,7 +414,7 @@ export default function StudentsPage() {
                     </td>
 
                     <td className="px-5 py-4">
-                      {student.phone || "—"}
+                      {student.phone || "-"}
                     </td>
 
                     <td className="px-5 py-4">

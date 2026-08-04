@@ -45,7 +45,11 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    void loadDashboard();
+    const timeout = window.setTimeout(() => {
+      void loadDashboard();
+    }, 0);
+
+    return () => window.clearTimeout(timeout);
   }, [loadDashboard]);
 
   return (
