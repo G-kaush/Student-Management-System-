@@ -4,6 +4,8 @@ import {
   login,
   saveAuthSession,
 } from "@/lib/api";
+import PasswordField from "@/components/PasswordField";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { FormEvent } from "react";
 import { useState } from "react";
@@ -41,15 +43,21 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
-      <section className="w-full max-w-md rounded-2xl bg-white p-6 shadow-sm sm:p-8">
+    <main className="auth-screen flex min-h-screen items-center justify-center p-4">
+      <section className="glass-panel-strong w-full max-w-md p-6 sm:p-8">
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold">
+          <div className="brand-mark mx-auto mb-5">SM</div>
+
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-teal-700">
+            Student Management Portal
+          </p>
+
+          <h1 className="text-3xl font-bold text-slate-950">
             Student Management System
           </h1>
 
           <p className="mt-2 text-sm text-slate-500">
-            Sign in to open the administration portal
+            Sign in to continue to your workspace
           </p>
         </div>
 
@@ -58,7 +66,7 @@ export default function LoginPage() {
           className="space-y-5"
         >
           {error && (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            <div className="rounded-lg border border-red-200 bg-red-50/90 p-3 text-sm text-red-700 shadow-sm">
               {error}
             </div>
           )}
@@ -80,40 +88,36 @@ export default function LoginPage() {
                 setEmail(event.target.value)
               }
               placeholder="admin@example.com"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-blue-500"
+              className="field-control"
             />
           </div>
 
-          <div>
-            <label
-              htmlFor="password"
-              className="mb-2 block text-sm font-medium"
-            >
-              Password
-            </label>
-
-            <input
-              id="password"
-              type="password"
-              required
-              value={password}
-              onChange={(event) =>
-                setPassword(event.target.value)
-              }
-              placeholder="Enter your password"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-blue-500"
-            />
-          </div>
+          <PasswordField
+            label="Password"
+            required
+            value={password}
+            onChange={setPassword}
+            placeholder="Enter your password"
+          />
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-blue-600 px-4 py-2.5 font-medium text-white hover:bg-blue-700"
+            className="primary-button w-full"
           >
             {loading ? "Signing in..." : "Sign in"}
           </button>
         </form>
 
+        <p className="mt-6 text-center text-sm text-slate-600">
+          Need an account?{" "}
+          <Link
+            href="/register"
+            className="font-semibold text-teal-700 hover:text-teal-900"
+          >
+            Create an account
+          </Link>
+        </p>
       </section>
     </main>
   );

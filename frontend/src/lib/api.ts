@@ -3,8 +3,9 @@ import type {
   Course,
   CoursePayload,
   CurrentUser,
-  RegisterUserPayload,
-  Student,
+  EnrollmentResponse,
+  AccountRegisterPayload,
+  ProfileUpdatePayload,
   StudentPayload,
   UserResponse,
 } from "@/types";
@@ -66,11 +67,14 @@ async function apiRequest<T>(
   headers.set("Content-Type", "application/json");
 
   const token = getAccessToken();
-  const isLoginRequest = path === "/auth/login";
+  const isPublicAuthRequest =
+    path === "/auth/login" ||
+    path === "/auth/register" ||
+    path === "/auth/instructor/register";
 
   if (token) {
     headers.set("Authorization", `Bearer ${token}`);
-  } else if (!isLoginRequest && typeof window !== "undefined") {
+  } else if (!isPublicAuthRequest && typeof window !== "undefined") {
     clearAuthSession();
     window.location.assign("/login");
     throw new Error("Please sign in to continue.");
@@ -106,7 +110,7 @@ async function apiRequest<T>(
 
     if (
       response.status === 401 &&
-      !isLoginRequest &&
+      !isPublicAuthRequest &&
       typeof window !== "undefined"
     ) {
       clearAuthSession();
@@ -141,13 +145,28 @@ export function login(
   });
 }
 
-export function registerUser(
-  payload: RegisterUserPayload,
-): Promise<UserResponse> {
-  return apiRequest<UserResponse>("/auth/register", {
+export function registerStudent(
+  payload: AccountRegisterPayload,
+): Promise<AuthResponse> {
+  return apiRequest<AuthResponse>("/auth/register", {
     method: "POST",
     body: JSON.stringify(payload),
   });
+}
+
+export function registerInstructor(
+  payload: AccountRegisterPayload,
+): Promise<UserResponse> {
+  return apiRequest<UserResponse>(
+    "/auth/instructor/register",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        ...payload,
+        role: "INSTRUCTOR",
+      }),
+    },
+  );
 }
 
 /**
@@ -199,12 +218,84 @@ export function getUsers(): Promise<UserResponse[]> {
   });
 }
 
+export function getRegisteredStudents(): Promise<
+  UserResponse[]
+> {
+  return apiRequest<UserResponse[]>("/users/students", {
+    method: "GET",
+    cache: "no-store",
+  });
+}
+
+export function createStudent(
+  payload: StudentPayload,
+): Promise<UserResponse> {
+  return apiRequest<UserResponse>("/users/students", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateStudent(
+  id: number,
+  payload: StudentPayload,
+): Promise<UserResponse> {
+  return apiRequest<UserResponse>(
+    `/users/students/${id}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    },
+  );
+}
+
+export function deleteStudent(
+  id: number,
+): Promise<void> {
+  return apiRequest<void>(`/users/students/${id}`, {
+    method: "DELETE",
+  });
+}
+
+export function getApprovedInstructors(): Promise<
+  UserResponse[]
+> {
+  return apiRequest<UserResponse[]>("/users/instructors", {
+    method: "GET",
+    cache: "no-store",
+  });
+}
+
+export function approveUser(
+  id: number,
+): Promise<UserResponse> {
+  return apiRequest<UserResponse>(`/users/${id}/approve`, {
+    method: "PATCH",
+  });
+}
+
+export function updateMyProfile(
+  payload: ProfileUpdatePayload,
+): Promise<AuthResponse> {
+  return apiRequest<AuthResponse>("/users/me", {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
 // ======================================================
 // Course APIs
 // ======================================================
 
 export function getCourses(): Promise<Course[]> {
   return apiRequest<Course[]>("/courses", {
+    method: "GET",
+    cache: "no-store",
+  });
+}
+
+export function getAvailableCourses(): Promise<Course[]> {
+  return apiRequest<Course[]>("/courses/available", {
     method: "GET",
     cache: "no-store",
   });
@@ -247,48 +338,55 @@ export function deleteCourse(
 }
 
 // ======================================================
-// Student APIs
+// Enrollment APIs
 // ======================================================
 
-export function getStudents(): Promise<Student[]> {
-  return apiRequest<Student[]>("/students", {
+export function enrollInCourse(
+  courseId: number,
+): Promise<EnrollmentResponse> {
+  return apiRequest<EnrollmentResponse>(
+    `/enrollments/${courseId}`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export function getMyCourses(): Promise<Course[]> {
+  return apiRequest<Course[]>("/enrollments/my-courses", {
     method: "GET",
     cache: "no-store",
   });
 }
 
-export function getStudentById(
-  id: number,
-): Promise<Student> {
-  return apiRequest<Student>(`/students/${id}`, {
-    method: "GET",
-    cache: "no-store",
-  });
-}
-
-export function createStudent(
-  payload: StudentPayload,
-): Promise<Student> {
-  return apiRequest<Student>("/students", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
-}
-
-export function updateStudent(
-  id: number,
-  payload: StudentPayload,
-): Promise<Student> {
-  return apiRequest<Student>(`/students/${id}`, {
-    method: "PUT",
-    body: JSON.stringify(payload),
-  });
-}
-
-export function deleteStudent(
-  id: number,
+export function unenrollFromCourse(
+  courseId: number,
 ): Promise<void> {
-  return apiRequest<void>(`/students/${id}`, {
-    method: "DELETE",
+  return apiRequest<void>(
+    `/enrollments/my-courses/${courseId}`,
+    {
+      method: "DELETE",
+    },
+  );
+}
+
+export function getEnrollments(): Promise<
+  EnrollmentResponse[]
+> {
+  return apiRequest<EnrollmentResponse[]>("/enrollments", {
+    method: "GET",
+    cache: "no-store",
   });
 }
+
+export function removeEnrollment(
+  enrollmentId: number,
+): Promise<void> {
+  return apiRequest<void>(
+    `/enrollments/${enrollmentId}`,
+    {
+      method: "DELETE",
+    },
+  );
+}
+

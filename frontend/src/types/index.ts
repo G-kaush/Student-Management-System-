@@ -3,34 +3,20 @@ export interface Course {
   code: string;
   name: string;
   description: string | null;
-}
-
-export interface Student {
-  id: number;
-  studentNumber: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string | null;
-  course: Course;
+  instructor: UserResponse;
 }
 
 export interface CoursePayload {
   code: string;
   name: string;
   description: string;
+  instructorId: number;
 }
 
-export interface StudentPayload {
-  studentNumber: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  courseId: number;
-}
-
-export type UserRole = "ADMIN" | "INSTRUCTOR";
+export type UserRole =
+  | "ADMIN"
+  | "INSTRUCTOR"
+  | "STUDENT";
 
 export interface AuthResponse {
   token: string;
@@ -48,11 +34,23 @@ export interface CurrentUser {
   role: UserRole;
 }
 
-export interface RegisterUserPayload {
+export interface AccountRegisterPayload {
   username: string;
   email: string;
   password: string;
-  role: UserRole;
+}
+
+export interface StudentPayload {
+  username: string;
+  email: string;
+  password?: string | null;
+}
+
+export interface ProfileUpdatePayload {
+  username: string;
+  email: string;
+  currentPassword: string;
+  newPassword?: string | null;
 }
 
 export interface UserResponse {
@@ -60,4 +58,12 @@ export interface UserResponse {
   username: string;
   email: string;
   role: UserRole;
+  approved: boolean;
+}
+
+export interface EnrollmentResponse {
+  id: number;
+  student: UserResponse;
+  course: Course;
+  enrolledAt: string;
 }

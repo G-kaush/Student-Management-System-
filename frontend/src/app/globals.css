@@ -1,8 +1,18 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #0f172a;
+  --background: #0d0e0e;
+  --foreground: #f8fafc;
+  --muted: #8fa4ac;
+  --panel: rgba(10, 23, 27, 0.76);
+  --panel-strong: rgba(7, 16, 20, 0.9);
+  --border: rgba(148, 252, 239, 0.14);
+  --primary: #22d3ee;
+  --primary-dark: #0891b2;
+  --accent: #14b8a6;
+  --danger: #f43f5e;
+  --success: #34d399;
+  --warning: #fbbf24;
 }
 
 * {
@@ -17,7 +27,14 @@ body {
   margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
 }
 
 button,
@@ -25,4 +42,286 @@ input,
 textarea,
 select {
   font: inherit;
+}
+
+::selection {
+  background: rgba(34, 211, 238, 0.28);
+}
+
+.glass-panel {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(18, 39, 47, 0.88), var(--panel));
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.08) inset,
+    0 22px 64px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(18px);
+}
+
+.glass-panel-strong {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(14, 28, 34, 0.96), var(--panel-strong));
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.08) inset,
+    0 24px 74px rgba(0, 0, 0, 0.44);
+  backdrop-filter: blur(22px);
+}
+
+.app-sidebar {
+  background:
+    linear-gradient(180deg, rgba(9, 18, 24, 0.96), rgba(6, 13, 18, 0.94));
+}
+
+.app-topbar {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(7, 16, 20, 0.72);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(18px);
+}
+
+.account-card {
+  border: 1px solid rgba(148, 252, 239, 0.14);
+  background:
+    linear-gradient(135deg, rgba(34, 211, 238, 0.12), rgba(20, 184, 166, 0.05));
+  box-shadow: 0 0 32px rgba(34, 211, 238, 0.08);
+}
+
+.field-control {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid rgba(148, 252, 239, 0.16);
+  border-radius: 8px;
+  background: rgba(6, 15, 20, 0.72);
+  padding: 0.6rem 0.75rem;
+  color: var(--foreground);
+  outline: none;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
+}
+
+.field-control:focus {
+  border-color: var(--primary);
+  background: rgba(8, 22, 28, 0.92);
+  box-shadow:
+    0 0 0 3px rgba(34, 211, 238, 0.12),
+    0 0 26px rgba(34, 211, 238, 0.18);
+}
+
+.field-control::placeholder {
+  color: rgba(203, 213, 225, 0.42);
+}
+
+.password-toggle {
+  border: 0;
+  background: transparent;
+  color: #031014;
+  transition:
+    color 160ms ease,
+    opacity 160ms ease;
+}
+
+.password-toggle:hover {
+  color: #0891b2;
+}
+
+.password-toggle:focus {
+  outline: none;
+  color: #0891b2;
+}
+
+.primary-button,
+.secondary-button,
+.danger-button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6rem 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    opacity 160ms ease;
+}
+
+.primary-button {
+  background:
+    linear-gradient(180deg, #22d3ee, #0891b2);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.28) inset,
+    0 0 24px rgba(34, 211, 238, 0.24),
+    0 14px 30px rgba(8, 145, 178, 0.24);
+  color: #031014;
+}
+
+.primary-button:hover {
+  background:
+    linear-gradient(180deg, #67e8f9, #0891b2);
+}
+
+.secondary-button {
+  border-color: rgba(148, 252, 239, 0.16);
+  background: rgba(8, 22, 28, 0.7);
+  color: #dbeafe;
+}
+
+.secondary-button:hover {
+  border-color: rgba(34, 211, 238, 0.36);
+  background: rgba(14, 38, 46, 0.92);
+}
+
+.danger-button {
+  background:
+    linear-gradient(180deg, #fb7185, var(--danger));
+  box-shadow: 0 12px 26px rgba(244, 63, 94, 0.16);
+  color: #ffffff;
+}
+
+.primary-button:disabled,
+.secondary-button:disabled,
+.danger-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.auth-screen {
+  background: var(--background);
+}
+
+.brand-mark {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, #67e8f9, #22d3ee 42%, #14b8a6);
+  box-shadow:
+    0 0 24px rgba(34, 211, 238, 0.34),
+    0 14px 28px rgba(8, 145, 178, 0.2);
+  color: #031014;
+  font-weight: 800;
+}
+
+.data-table tbody tr {
+  transition:
+    background 140ms ease,
+    transform 140ms ease;
+}
+
+.data-table tbody tr:hover {
+  background: rgba(34, 211, 238, 0.06);
+}
+
+.data-table th {
+  color: rgba(203, 213, 225, 0.72);
+  font-weight: 700;
+}
+
+.enrollment-table-head {
+  background:
+    linear-gradient(180deg, rgba(20, 184, 166, 0.2), rgba(8, 22, 28, 0.86));
+  box-shadow: 0 1px 0 rgba(148, 252, 239, 0.16) inset;
+}
+
+.enrollment-table-head th {
+  color: #dffcff;
+}
+
+.data-table td {
+  color: rgba(226, 232, 240, 0.9);
+}
+
+.text-slate-950,
+.text-slate-900 {
+  color: #f8fafc !important;
+}
+
+.text-slate-700,
+.text-slate-600 {
+  color: #cbd5e1 !important;
+}
+
+.text-slate-500 {
+  color: var(--muted) !important;
+}
+
+.text-teal-700,
+.text-teal-900 {
+  color: #67e8f9 !important;
+}
+
+.bg-white\/55,
+.bg-white\/52,
+.bg-white\/64,
+.bg-white\/70,
+.bg-white\/78,
+.bg-white\/82 {
+  background-color: rgba(8, 22, 28, 0.64) !important;
+}
+
+.bg-slate-950 {
+  background-color: #22d3ee !important;
+  color: #031014 !important;
+}
+
+.border-slate-200\/70,
+.border-slate-200\/80,
+.border-white\/70,
+.border-slate-200 {
+  border-color: rgba(148, 252, 239, 0.14) !important;
+}
+
+.shadow-sm {
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18) !important;
+}
+
+.bg-red-50\/85,
+.bg-red-50\/90 {
+  background-color: rgba(127, 29, 29, 0.32) !important;
+}
+
+.border-red-200 {
+  border-color: rgba(251, 113, 133, 0.28) !important;
+}
+
+.text-red-700 {
+  color: #fecdd3 !important;
+}
+
+.bg-emerald-50\/85,
+.bg-emerald-50\/90,
+.bg-emerald-50 {
+  background-color: rgba(6, 78, 59, 0.34) !important;
+}
+
+.border-emerald-200 {
+  border-color: rgba(52, 211, 153, 0.28) !important;
+}
+
+.text-emerald-700 {
+  color: #a7f3d0 !important;
+}
+
+.bg-amber-50,
+.bg-amber-50\/85 {
+  background-color: rgba(120, 53, 15, 0.34) !important;
+}
+
+.text-amber-700 {
+  color: #fde68a !important;
+}
+
+.bg-teal-50 {
+  background-color: rgba(20, 184, 166, 0.14) !important;
+}
+
+.text-white {
+  color: #ffffff;
 }
