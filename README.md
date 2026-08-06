@@ -7,9 +7,10 @@ Full stack onboarding project using Next.js, Spring Boot, Supabase PostgreSQL, J
 - Next.js frontend: complete
 - Spring Boot REST API: complete
 - Supabase PostgreSQL integration: configured through environment variables
-- Students, courses, and users tables: schema provided in `database/schema.sql`
-- CRUD APIs for students and courses: complete
-- Login and protected API calls: complete
+- Users, instructor-owned courses, and enrollments tables: schema provided in `database/schema.sql`
+- Course CRUD APIs, student viewing, and instructor approval: complete
+- Login, student/instructor registration, and protected API calls: complete
+- Student course enrollment flow: complete
 - JWT authentication and role-based endpoint access: complete
 - Validation and JSON error responses: complete
 - Local build/test commands: documented below
@@ -95,15 +96,37 @@ http://localhost:3000
 
 ## Authentication Flow
 
-1. Sign in on `/login` with the admin account.
-2. The frontend stores the JWT in browser local storage.
-3. API requests send `Authorization: Bearer <token>`.
-4. Expired or missing sessions redirect back to `/login`.
+1. Students create their own account on `/register` and can log in immediately.
+2. Instructors request an account on `/register`.
+3. The single Admin account is created by bootstrap environment variables.
+4. Admin approves pending instructor requests from the Users page.
+5. Approved users sign in on `/login`.
+6. The frontend stores the JWT in browser local storage.
+7. API requests send `Authorization: Bearer <token>`.
+8. Expired or missing sessions redirect back to `/login`.
 
 Roles:
 
-- `ADMIN`: manage users, courses, and students; delete students
-- `INSTRUCTOR`: view courses/students and create/update students
+- `ADMIN`: single bootstrap account; approve instructors, assign courses to instructors, view all students, courses, users, and enrollments
+- `INSTRUCTOR`: log in only after approval; view assigned courses and students enrolled in those courses
+- `STUDENT`: register, log in, use dashboard/profile, view available courses, enroll in courses, and view enrolled courses
+
+Registration APIs:
+
+```text
+POST  /api/auth/register             public student registration
+POST  /api/auth/instructor/register  public instructor request
+PATCH /api/users/{id}/approve        admin-only instructor approval
+```
+
+Enrollment APIs:
+
+```text
+GET  /api/courses/available        student-only available courses
+POST /api/enrollments/{courseId}   student-only enroll in course
+GET  /api/enrollments/my-courses   student-only enrolled courses
+GET  /api/enrollments              admin sees all; instructor sees own course enrollments
+```
 
 ## Useful Commands
 
@@ -123,105 +146,3 @@ cd backend
 ```
 
 Backend tests use an H2 test profile and do not require Supabase credentials.
-
-## Deployment
-
-Recommended simple deployment:
-
-- Supabase: database
-- Render: Spring Boot backend
-- Vercel: Next.js frontend
-
-### 1. Deploy Supabase
-
-Run `database/schema.sql` in the Supabase SQL Editor.
-
-Use a Supabase connection string that your backend host can reach. Supabase direct connections can require IPv6. If your backend host cannot connect, use the Supabase pooler/session connection string and convert it to JDBC format:
-
-```text
-jdbc:postgresql://HOST:PORT/postgres?sslmode=require
-```
-
-### 2. Deploy Backend On Render
-
-Create a Render Web Service from this GitHub repository.
-
-Use these settings:
-
-```text
-Root Directory: backend
-Build Command: ./mvnw clean package -DskipTests
-Start Command: java -jar target/backend-0.0.1-SNAPSHOT.jar
-```
-
-Add these Render environment variables:
-
-```text
-DB_URL=jdbc:postgresql://YOUR_SUPABASE_HOST:5432/postgres?sslmode=require
-DB_USERNAME=postgres
-DB_PASSWORD=YOUR_SUPABASE_DATABASE_PASSWORD
-JWT_SECRET=YOUR_BASE64_SECRET
-JWT_EXPIRATION_MS=86400000
-ADMIN_USERNAME=System Admin
-ADMIN_EMAIL=admin@studentmanagement.com
-ADMIN_PASSWORD=YourOwnStrongPassword123
-CORS_ALLOWED_ORIGINS=https://YOUR_FRONTEND_DOMAIN.vercel.app
-```
-
-After Render deploys, your backend link will look like:
-
-```text
-https://your-backend-name.onrender.com
-```
-
-Backend API base URL:
-
-```text
-https://your-backend-name.onrender.com/api
-```
-
-Health check:
-
-```text
-https://your-backend-name.onrender.com/api/health
-```
-
-### 3. Deploy Frontend On Vercel
-
-Create a Vercel project from this GitHub repository.
-
-Use these settings:
-
-```text
-Root Directory: frontend
-Build Command: npm run build
-Install Command: npm install
-```
-
-Add this Vercel environment variable:
-
-```text
-NEXT_PUBLIC_API_BASE_URL=https://your-backend-name.onrender.com/api
-```
-
-After Vercel deploys, your frontend link will look like:
-
-```text
-https://your-frontend-name.vercel.app
-```
-
-After you know the Vercel URL, go back to Render and update:
-
-```text
-CORS_ALLOWED_ORIGINS=https://your-frontend-name.vercel.app
-```
-
-Then redeploy the backend.
-
-Final deliverable links:
-
-```text
-Frontend: https://your-frontend-name.vercel.app
-Backend API: https://your-backend-name.onrender.com/api
-Health Check: https://your-backend-name.onrender.com/api/health
-```
