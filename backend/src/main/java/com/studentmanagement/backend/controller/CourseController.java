@@ -1,8 +1,9 @@
 package com.studentmanagement.backend.controller;
 
-import com.studentmanagement.backend.dto.CourseRequest;
-import com.studentmanagement.backend.entity.Course;
+import com.studentmanagement.backend.dto.request.CourseRequest;
+import com.studentmanagement.backend.dto.response.CourseResponse;
 import com.studentmanagement.backend.service.CourseService;
+import com.studentmanagement.backend.service.EnrollmentService;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -21,26 +22,37 @@ import org.springframework.web.bind.annotation.RestController;
 public class CourseController {
 
     private final CourseService courseService;
+    private final EnrollmentService enrollmentService;
 
-    public CourseController(CourseService courseService) {
+    public CourseController(
+        CourseService courseService,
+        EnrollmentService enrollmentService
+    ) {
         this.courseService = courseService;
+        this.enrollmentService = enrollmentService;
     }
 
     @GetMapping
-    public List<Course> getAllCourses() {
-        return courseService.getAllCourses();
+    public List<CourseResponse> getAllCourses() {
+        return courseService.getCoursesForCurrentUser();
     }
 
     @GetMapping("/{id}")
-    public Course getCourseById(@PathVariable Long id) {
+    public CourseResponse getCourseById(@PathVariable Long id) {
         return courseService.getCourseById(id);
     }
 
+    @GetMapping("/available")
+    public List<CourseResponse> getAvailableCourses() {
+        return enrollmentService
+            .getAvailableCoursesForCurrentStudent();
+    }
+
     @PostMapping
-    public ResponseEntity<Course> createCourse(
+    public ResponseEntity<CourseResponse> createCourse(
         @Valid @RequestBody CourseRequest request
     ) {
-        Course course = courseService.createCourse(request);
+        CourseResponse course = courseService.createCourse(request);
 
         return ResponseEntity
             .status(HttpStatus.CREATED)
@@ -48,7 +60,7 @@ public class CourseController {
     }
 
     @PutMapping("/{id}")
-    public Course updateCourse(
+    public CourseResponse updateCourse(
         @PathVariable Long id,
         @Valid @RequestBody CourseRequest request
     ) {

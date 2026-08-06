@@ -9,42 +9,39 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import java.time.Instant;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "students")
+@Table(
+    name = "enrollments",
+    uniqueConstraints = {
+        @UniqueConstraint(
+            name = "uk_enrollments_student_course",
+            columnNames = {"student_user_id", "course_id"}
+        )
+    }
+)
 @Getter
 @Setter
 @NoArgsConstructor
-public class Student {
+public class Enrollment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(
-        name = "student_number",
-        nullable = false,
-        unique = true,
-        length = 30
-    )
-    private String studentNumber;
-
-    @Column(name = "first_name", nullable = false, length = 100)
-    private String firstName;
-
-    @Column(name = "last_name", nullable = false, length = 100)
-    private String lastName;
-
-    @Column(nullable = false, unique = true, length = 150)
-    private String email;
-
-    @Column(length = 30)
-    private String phone;
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "student_user_id", nullable = false)
+    private AppUser student;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
+
+    @Column(name = "enrolled_at", nullable = false)
+    private Instant enrolledAt = Instant.now();
 }

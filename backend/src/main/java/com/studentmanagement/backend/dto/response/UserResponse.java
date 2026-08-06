@@ -1,4 +1,4 @@
-package com.studentmanagement.backend.dto.auth;
+package com.studentmanagement.backend.dto.response;
 
 import com.studentmanagement.backend.entity.AppUser;
 import com.studentmanagement.backend.entity.Role;
@@ -7,7 +7,8 @@ public record UserResponse(
     Long id,
     String username,
     String email,
-    Role role
+    Role role,
+    boolean approved
 ) {
 
     public static UserResponse from(AppUser user) {
@@ -15,7 +16,8 @@ public record UserResponse(
             user.getId(),
             user.getUsername(),
             user.getEmail(),
-            user.getRole()
+            user.getRole(),
+            user.isApproved()
         );
     }
 }

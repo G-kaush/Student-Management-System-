@@ -1,13 +1,11 @@
-package com.studentmanagement.backend.dto.auth;
+package com.studentmanagement.backend.dto.request;
 
-import com.studentmanagement.backend.entity.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-public record RegisterRequest(
+public record ProfileUpdateRequest(
 
     @NotBlank(message = "Username is required")
     @Size(min = 3, max = 100)
@@ -22,20 +20,19 @@ public record RegisterRequest(
     @Size(max = 150)
     String email,
 
-    @NotBlank(message = "Password is required")
+    @NotBlank(message = "Current password is required")
+    String currentPassword,
+
     @Size(
         min = 8,
         max = 72,
-        message = "Password must contain 8 to 72 characters"
+        message = "New password must contain 8 to 72 characters"
     )
     @Pattern(
-        regexp = "^(?=.*[A-Za-z])(?=.*\\d).+$",
-        message = "Password must contain a letter and a number"
+        regexp = "^$|^(?=.*[A-Za-z])(?=.*\\d).+$",
+        message = "New password must contain a letter and a number"
     )
-    String password,
-
-    @NotNull(message = "Role is required")
-    Role role
+    String newPassword
 
 ) {
 }

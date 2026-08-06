@@ -1,9 +1,10 @@
 package com.studentmanagement.backend.controller;
 
-import com.studentmanagement.backend.dto.auth.AuthResponse;
-import com.studentmanagement.backend.dto.auth.LoginRequest;
-import com.studentmanagement.backend.dto.auth.RegisterRequest;
-import com.studentmanagement.backend.dto.auth.UserResponse;
+import com.studentmanagement.backend.dto.request.LoginRequest;
+import com.studentmanagement.backend.dto.request.RegisterRequest;
+import com.studentmanagement.backend.dto.request.StudentRegisterRequest;
+import com.studentmanagement.backend.dto.response.AuthResponse;
+import com.studentmanagement.backend.dto.response.UserResponse;
 import com.studentmanagement.backend.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -33,10 +34,17 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasRole('ADMIN')")
-    public UserResponse register(
+    public AuthResponse registerStudent(
+        @Valid @RequestBody StudentRegisterRequest request
+    ) {
+        return authService.registerStudent(request);
+    }
+
+    @PostMapping("/instructor/register")
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserResponse registerInstructor(
         @Valid @RequestBody RegisterRequest request
     ) {
-        return authService.register(request);
+        return authService.registerInstructor(request);
     }
 }

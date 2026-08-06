@@ -56,6 +56,7 @@ public class AdminBootstrap
             passwordEncoder.encode(password)
         );
         admin.setRole(Role.ADMIN);
+        admin.setApproved(true);
 
         userRepository.save(admin);
 

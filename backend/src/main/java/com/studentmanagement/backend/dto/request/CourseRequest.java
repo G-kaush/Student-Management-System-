@@ -1,4 +1,4 @@
-package com.studentmanagement.backend.dto;
+package com.studentmanagement.backend.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -19,7 +19,9 @@ public record CourseRequest(
     String name,
 
     @Size(max = 500, message = "Description cannot exceed 500 characters")
-    String description
+    String description,
+
+    Long instructorId
 
 ) {
 }

@@ -1,4 +1,4 @@
-package com.studentmanagement.backend.dto.auth;
+package com.studentmanagement.backend.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

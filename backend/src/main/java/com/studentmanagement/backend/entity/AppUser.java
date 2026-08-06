@@ -52,4 +52,7 @@ public class AppUser {
     @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(nullable = false, length = 20)
     private Role role = Role.INSTRUCTOR;
+
+    @Column(nullable = false)
+    private boolean approved = true;
 }

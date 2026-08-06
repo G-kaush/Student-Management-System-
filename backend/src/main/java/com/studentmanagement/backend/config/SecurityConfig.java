@@ -3,9 +3,11 @@ package com.studentmanagement.backend.config;
 import com.studentmanagement.backend.security.CustomUserDetailsService;
 import com.studentmanagement.backend.security.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Arrays;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -18,6 +20,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableMethodSecurity
@@ -49,6 +54,42 @@ public class SecurityConfig {
     }
 
     @Bean
+    public CorsConfigurationSource corsConfigurationSource(
+        @Value("${app.cors.allowed-origins}") String allowedOrigins
+    ) {
+        CorsConfiguration configuration =
+            new CorsConfiguration();
+
+        configuration.setAllowedOrigins(
+            Arrays.asList(
+                allowedOrigins.split("\\s*,\\s*")
+            )
+        );
+        configuration.setAllowedMethods(
+            Arrays.asList(
+                "GET",
+                "POST",
+                "PUT",
+                "PATCH",
+                "DELETE",
+                "OPTIONS"
+            )
+        );
+        configuration.setAllowedHeaders(
+            Arrays.asList("*")
+        );
+
+        UrlBasedCorsConfigurationSource source =
+            new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration(
+            "/api/**",
+            configuration
+        );
+
+        return source;
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(
         HttpSecurity http,
         JwtAuthenticationFilter jwtFilter,
@@ -73,39 +114,77 @@ public class SecurityConfig {
 
                 .requestMatchers(
                     "/api/health",
-                    "/api/auth/login"
+                    "/api/auth/login",
+                    "/api/auth/register",
+                    "/api/auth/instructor/register"
                 ).permitAll()
 
                 .requestMatchers(
-                    HttpMethod.POST,
-                    "/api/auth/register"
-                ).hasRole("ADMIN")
+                    HttpMethod.GET,
+                    "/api/courses/available"
+                ).hasRole("STUDENT")
 
                 .requestMatchers(
                     HttpMethod.GET,
-                    "/api/courses/**",
-                    "/api/students/**"
-                ).hasAnyRole("ADMIN", "INSTRUCTOR")
+                    "/api/courses/**"
+                ).hasAnyRole("ADMIN", "INSTRUCTOR", "STUDENT")
 
                 .requestMatchers(
                     HttpMethod.POST,
-                    "/api/students/**"
+                    "/api/courses"
                 ).hasAnyRole("ADMIN", "INSTRUCTOR")
 
                 .requestMatchers(
                     HttpMethod.PUT,
-                    "/api/students/**"
+                    "/api/courses/**"
                 ).hasAnyRole("ADMIN", "INSTRUCTOR")
 
                 .requestMatchers(
                     HttpMethod.DELETE,
-                    "/api/students/**"
-                ).hasRole("ADMIN")
+                    "/api/courses/**"
+                ).hasAnyRole("ADMIN", "INSTRUCTOR")
 
                 .requestMatchers(
-                    "/api/courses/**",
-                    "/api/users/**"
+                    HttpMethod.GET,
+                    "/api/enrollments/my-courses"
+                ).hasRole("STUDENT")
+
+                .requestMatchers(
+                    HttpMethod.DELETE,
+                    "/api/enrollments/my-courses/**"
+                ).hasRole("STUDENT")
+
+                .requestMatchers(
+                    HttpMethod.POST,
+                    "/api/enrollments/**"
+                ).hasRole("STUDENT")
+
+                .requestMatchers(
+                    HttpMethod.DELETE,
+                    "/api/enrollments/**"
+                ).hasAnyRole("ADMIN", "INSTRUCTOR")
+
+                .requestMatchers(
+                    HttpMethod.GET,
+                    "/api/enrollments/**"
+                ).hasAnyRole("ADMIN", "INSTRUCTOR")
+
+                .requestMatchers(
+                    HttpMethod.GET,
+                    "/api/users/students"
+                ).hasAnyRole("ADMIN", "INSTRUCTOR")
+
+                .requestMatchers(
+                    HttpMethod.PUT,
+                    "/api/users/me"
+                ).hasAnyRole("INSTRUCTOR", "STUDENT")
+
+                .requestMatchers(
+                    "/api/courses/**"
                 ).hasRole("ADMIN")
+
+                .requestMatchers("/api/users/**")
+                .hasRole("ADMIN")
 
                 .anyRequest().authenticated()
             )

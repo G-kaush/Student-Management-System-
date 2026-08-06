@@ -1,4 +1,4 @@
-package com.studentmanagement.backend.dto.auth;
+package com.studentmanagement.backend.dto.response;
 
 import com.studentmanagement.backend.entity.Role;
 

@@ -1,10 +1,12 @@
 package com.studentmanagement.backend.service;
 
-import com.studentmanagement.backend.dto.auth.AuthResponse;
-import com.studentmanagement.backend.dto.auth.LoginRequest;
-import com.studentmanagement.backend.dto.auth.RegisterRequest;
-import com.studentmanagement.backend.dto.auth.UserResponse;
+import com.studentmanagement.backend.dto.request.LoginRequest;
+import com.studentmanagement.backend.dto.request.RegisterRequest;
+import com.studentmanagement.backend.dto.request.StudentRegisterRequest;
+import com.studentmanagement.backend.dto.response.AuthResponse;
+import com.studentmanagement.backend.dto.response.UserResponse;
 import com.studentmanagement.backend.entity.AppUser;
+import com.studentmanagement.backend.entity.Role;
 import com.studentmanagement.backend.repository.UserRepository;
 import com.studentmanagement.backend.security.JwtService;
 import org.springframework.http.HttpStatus;
@@ -57,6 +59,13 @@ public class AuthService {
                 )
             );
 
+        if (!user.isApproved()) {
+            throw new ResponseStatusException(
+                HttpStatus.FORBIDDEN,
+                "Your instructor account is waiting for admin approval"
+            );
+        }
+
         return new AuthResponse(
             jwtService.generateToken(user),
             "Bearer",
@@ -67,12 +76,63 @@ public class AuthService {
         );
     }
 
-    public UserResponse register(
+    public UserResponse registerInstructor(
         RegisterRequest request
     ) {
-        String username = request.username().trim();
+        if (
+            request.role() != null
+                && request.role() != Role.INSTRUCTOR
+        ) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Only instructor accounts can be requested here"
+            );
+        }
 
-        String email = request.email()
+        AppUser user = createUser(
+            request.username(),
+            request.email(),
+            request.password(),
+            Role.INSTRUCTOR,
+            false
+        );
+
+        return UserResponse.from(
+            user
+        );
+    }
+
+    public AuthResponse registerStudent(
+        StudentRegisterRequest request
+    ) {
+        AppUser user = createUser(
+            request.username(),
+            request.email(),
+            request.password(),
+            Role.STUDENT,
+            true
+        );
+
+        return new AuthResponse(
+            jwtService.generateToken(user),
+            "Bearer",
+            user.getId(),
+            user.getUsername(),
+            user.getEmail(),
+            user.getRole()
+        );
+    }
+
+    private AppUser createUser(
+        String rawUsername,
+        String rawEmail,
+        String rawPassword,
+        Role role,
+        boolean approved
+    ) {
+        String username = rawUsername.trim();
+
+        String email = rawEmail
             .trim()
             .toLowerCase();
 
@@ -100,12 +160,11 @@ public class AuthService {
         user.setUsername(username);
         user.setEmail(email);
         user.setPasswordHash(
-            passwordEncoder.encode(request.password())
+            passwordEncoder.encode(rawPassword)
         );
-        user.setRole(request.role());
+        user.setRole(role);
+        user.setApproved(approved);
 
-        return UserResponse.from(
-            userRepository.save(user)
-        );
+        return userRepository.save(user);
     }
 }
